@@ -1,17 +1,15 @@
 {
-  "name": "@monorepo/root",
-  "private": true,
+  "name": "@yaacov/minivirt-plugin",
   "version": "0.0.1",
   "repository": "git@github.com:yaacov/minivirt-plugin.git",
   "license": "Apache-2.0",
   "scripts": {
-    "start": "npm run start -w @yaacov/minivirt-plugin",
-    "build": "npm run build -ws"
+    "start": "npx webpack serve",
+    "build": "npx webpack  build",
+    "i18n": "i18next \"modules/**/*.{js,jsx,ts,tsx}\" [-oc] -c i18next-parser.config.mjs"
   },
-  "workspaces": [
-    "./packages/*"
-  ],
   "devDependencies": {
+    "@yaacov/common": "^0.0.1",
     "@openshift-console/dynamic-plugin-sdk": "0.0.18",
     "@openshift-console/dynamic-plugin-sdk-webpack": "0.0.8",
     "@openshift/dynamic-plugin-sdk": "~1.0.0",

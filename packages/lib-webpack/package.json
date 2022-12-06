@@ -1,0 +1,26 @@
+{
+  "name": "@yaacov/webpack",
+  "version": "0.0.1",
+  "description": "Allows building dynamic plugin assets with webpack",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yaacov/forklift-console-plugin.git",
+    "directory": "packages/lib-webpack"
+  },
+  "files": ["./dist/*"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "rm -rf ./dist && npx tsc -p ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@openshift-console/dynamic-plugin-sdk": "0.0.18",
+    "@openshift-console/dynamic-plugin-sdk-webpack": "0.0.8",
+    "@openshift/dynamic-plugin-sdk": "~1.0.0",
+    "@openshift/dynamic-plugin-sdk-webpack": "~1.0.0"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

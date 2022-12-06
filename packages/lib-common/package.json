@@ -1,0 +1,41 @@
+{
+  "name": "@yaacov/common",
+  "version": "0.0.1",
+  "description": "Common components and utilities for dynamic plugins",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yaacov/forklift-console-plugin.git",
+    "directory": "packages/lib-common"
+  },
+  "files": ["./dist/*"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./components/*": "./dist/components/*",
+    "./utils/*": "./dist/utils/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "components/*": [
+        "dist/components/*"
+      ],
+      "utils/*": [
+        "dist/utils/*"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && npx tsc -p ./tsconfig.json"
+  },
+  "devDependencies": {
+    "react": "^17.0.1",
+    "react-i18next": "^11.8.11",
+    "@patternfly/react-core": "4.175.4",
+    "@patternfly/react-table": "^4.93.1",
+    "@testing-library/react": "^12.1.5"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
