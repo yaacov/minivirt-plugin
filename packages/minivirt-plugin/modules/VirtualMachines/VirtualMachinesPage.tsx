@@ -72,6 +72,7 @@ export const ProvidersPage = ({ namespace, kind }) => {
     fieldsMetadata={fieldsMetadata}
     namespace={namespace}
     title={t('VIrtualMachines')}
+    pagination={100}
   />;
 
 };
