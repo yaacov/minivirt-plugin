@@ -1,15 +1,25 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   AttributeValueFilter,
   createMetaMatcher,
+  defaultValueMatchers,
   EnumFilter,
   FilterTypeProps,
   FreetextFilter,
   GroupedEnumFilter,
   PrimaryFilters,
   toFieldFilter,
+  useUrlFilters,
+  ValueMatcher,
 } from '../Filter';
-import { ManageColumnsToolbar, RowProps, TableView } from '../TableView';
+import {
+  DefaultHeader,
+  ManageColumnsToolbar,
+  RowProps,
+  TableView,
+  TableViewHeaderProps,
+  useSort,
+} from '../TableView';
 import { Field } from '../types';
 import { useTranslation } from '../../utils/i18n';
 
@@ -26,10 +36,10 @@ import {
 } from '@patternfly/react-core';
 import { FilterIcon } from '@patternfly/react-icons';
 
-import { useSort } from '../TableView/sort';
-
 import { ErrorState, Loading, NoResultsFound, NoResultsMatchFilter } from './ResultStates';
+import { UserSettings } from './types';
 import { useFields } from './useFields';
+import { DEFAULT_PER_PAGE, usePagination } from './usePagination';
 
 /**
  * @param T type to be displayed in the list
@@ -58,6 +68,13 @@ export interface StandardPageProps<T> {
    * Maps entity of type T to a table row.
    */
   RowMapper: React.FunctionComponent<RowProps<T>>;
+
+  /**
+   * (optional) Maps field list to table header.
+   * Defaults to all visible fields.
+   */
+  HeaderMapper?: (props: TableViewHeaderProps) => JSX.Element;
+
   /**
    * Filter types that will be used.
    * Default are: EnumFilter and FreetextFilter
@@ -65,6 +82,13 @@ export interface StandardPageProps<T> {
   supportedFilters?: {
     [type: string]: (props: FilterTypeProps) => JSX.Element;
   };
+
+  /**
+   * Extract value from fields and compare to selected filter.
+   * The default matchers support the default filters.
+   */
+  supportedMatchers?: ValueMatcher[];
+
   title: string;
   /**
    * Information displayed when the data source returned no items.
@@ -76,17 +100,25 @@ export interface StandardPageProps<T> {
   customNoResultsMatchFilter?: JSX.Element;
 
   /**
-   * 'on' - always show pagination controls
-   * 'off' - disable
-   * 'auto' - display if unfiltered number of items is greater then current 'items per page' value
+   * 1. 'on' - always show pagination controls
+   * 2. 'off' - disable
+   * 3.  auto -  display if unfiltered number of items is greater than provided threshold
+   *
+   * Default value: 10
    */
-  pagination?: 'auto' | 'on' | 'off';
-}
+  pagination?: number | 'on' | 'off';
 
-// counting from one seems recommneded - zero breaks some cases
-const DEFAULT_FIRST_PAGE = 1;
-// first option in the default "per page" dropdown
-const DEFAULT_PER_PAGE = 50;
+  /**
+   * Prefix for filters stored in the query params part of the URL.
+   * By default no prefix is used - the field ID is used directly.
+   */
+  filterPrefix?: string;
+
+  /**
+   * User settings store to initialize the page according to user preferences.
+   */
+  userSettings?: UserSettings;
+}
 
 /**
  * Standard list page.
@@ -105,34 +137,42 @@ export function StandardPage<T>({
   },
   customNoResultsFound,
   customNoResultsMatchFilter,
-  pagination = 'auto',
+  pagination = DEFAULT_PER_PAGE,
+  userSettings,
+  filterPrefix = '',
+  supportedMatchers = defaultValueMatchers,
+  HeaderMapper = DefaultHeader,
 }: StandardPageProps<T>) {
   const { t } = useTranslation();
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [selectedFilters, setSelectedFilters] = useUrlFilters({
+    fields: fieldsMetadata,
+    filterPrefix,
+  });
   const clearAllFilters = () => setSelectedFilters({});
-  const [fields, setFields] = useFields(namespace, fieldsMetadata);
-  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
-  const [page, setPage] = useState(DEFAULT_FIRST_PAGE);
+  const [fields, setFields] = useFields(namespace, fieldsMetadata, userSettings?.fields);
   const [activeSort, setActiveSort, comparator] = useSort(fields);
 
   const filteredData = useMemo(
-    () => flattenData.filter(createMetaMatcher(selectedFilters, fields)).sort(comparator),
+    () =>
+      flattenData
+        .filter(createMetaMatcher(selectedFilters, fields, supportedMatchers))
+        .sort(comparator),
     [flattenData, selectedFilters, fields, comparator],
   );
 
-  const lastPage = Math.ceil(filteredData.length / perPage);
-  const effectivePage = Math.min(page, lastPage);
-  const showPagination =
-    pagination === 'on' || (pagination === 'auto' && flattenData.length > perPage);
-
-  const pageData = useMemo(
-    () => filteredData.slice((effectivePage - 1) * perPage, effectivePage * perPage),
-    [filteredData, effectivePage, perPage],
-  );
+  const { pageData, showPagination, itemsPerPage, currentPage, setPage, setPerPage } =
+    usePagination({
+      pagination,
+      filteredData,
+      flattenData,
+      userSettings: userSettings?.pagination,
+    });
 
   const errorFetchingData = loaded && error;
   const noResults = loaded && !error && flattenData.length == 0;
   const noMatchingResults = loaded && !error && filteredData.length === 0 && flattenData.length > 0;
+
+  const primaryFilters = fields.filter((field) => field.filter?.primary).map(toFieldFilter);
 
   return (
     <>
@@ -148,12 +188,14 @@ export function StandardPage<T>({
         <Toolbar clearAllFilters={clearAllFilters} clearFiltersButtonText={t('Clear all filters')}>
           <ToolbarContent>
             <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-              <PrimaryFilters
-                fieldFilters={fields.filter((field) => field.filter?.primary).map(toFieldFilter)}
-                onFilterUpdate={setSelectedFilters}
-                selectedFilters={selectedFilters}
-                supportedFilterTypes={supportedFilters}
-              />
+              {primaryFilters.length > 0 && (
+                <PrimaryFilters
+                  fieldFilters={primaryFilters}
+                  onFilterUpdate={setSelectedFilters}
+                  selectedFilters={selectedFilters}
+                  supportedFilterTypes={supportedFilters}
+                />
+              )}
               <AttributeValueFilter
                 fieldFilters={fields
                   .filter(({ filter }) => filter && !filter.primary)
@@ -172,8 +214,8 @@ export function StandardPage<T>({
               <ToolbarItem variant="pagination">
                 <Pagination
                   variant="top"
-                  perPage={perPage}
-                  page={effectivePage}
+                  perPage={itemsPerPage}
+                  page={currentPage}
                   itemCount={filteredData.length}
                   onSetPage={(even, page) => setPage(page)}
                   onPerPageSelect={(even, perPage, page) => {
@@ -190,22 +232,24 @@ export function StandardPage<T>({
           visibleColumns={fields.filter(({ isVisible }) => isVisible)}
           aria-label={title}
           Row={RowMapper}
+          Header={HeaderMapper}
           activeSort={activeSort}
           setActiveSort={setActiveSort}
+          currentNamespace={namespace}
         >
           {!loaded && <Loading key="loading" />}
           {errorFetchingData && <ErrorState key="error" />}
           {noResults && (customNoResultsFound ?? <NoResultsFound key="no_result" />)}
           {noMatchingResults &&
             (customNoResultsMatchFilter ?? (
-              <NoResultsMatchFilter clearAllFilters={clearAllFilters} />
+              <NoResultsMatchFilter key="no_match" clearAllFilters={clearAllFilters} />
             ))}
         </TableView>
         {showPagination && (
           <Pagination
             variant="bottom"
-            perPage={perPage}
-            page={effectivePage}
+            perPage={itemsPerPage}
+            page={currentPage}
             itemCount={filteredData.length}
             onSetPage={(event, page) => setPage(page)}
             onPerPageSelect={(event, perPage, page) => {

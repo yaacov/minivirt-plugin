@@ -1,19 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from '../../utils/i18n';
+import { localeCompare } from '../../utils/localCompare';
 
 import { ThSortType } from '@patternfly/react-table/dist/esm/components/Table/base';
 
 import { Field, SortType } from '../types';
 
 import { Column } from './types';
-
-/**
- * Uses native string localCompare method with numeric option enabled.
- *
- * @param locale to be used by string comparator
- */
- export const localeCompare = (a: string, b: string, locale: string): number =>
- a.localeCompare(b, locale, { numeric: true });
 
 /**
  * Compares all types by converting them to string.

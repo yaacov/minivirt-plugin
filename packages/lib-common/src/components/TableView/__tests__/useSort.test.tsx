@@ -1,3 +1,5 @@
+import { NAME } from '../../../utils/constants';
+
 import { cleanup, renderHook } from '@testing-library/react-hooks';
 
 import { useSort } from '../sort';
@@ -5,7 +7,7 @@ import { useSort } from '../sort';
 afterEach(cleanup);
 
 describe('useSort hook', () => {
-  const NameColumn = { id: 'name', toLabel: () => 'name', isIdentity: true };
+  const NameColumn = { id: NAME, toLabel: () => NAME, isIdentity: true };
   it('uses first identity column as default sort', () => {
     const {
       result: {
@@ -14,7 +16,7 @@ describe('useSort hook', () => {
     } = renderHook(() => useSort([{ id: 'Foo', toLabel: () => '' }, NameColumn]));
 
     expect(activeSort).toMatchObject({
-      id: 'name',
+      id: NAME,
       toLabel: NameColumn.toLabel,
       isAsc: false,
     });

@@ -1,4 +1,4 @@
-import { Field } from '../types';
+import { Field, SortType } from '../types';
 
 export interface Column {
   id: string;
@@ -9,4 +9,12 @@ export interface Column {
 export interface RowProps<T> {
   columns: Field[];
   entity: T;
+  currentNamespace: string;
+  rowIndex: number;
+}
+
+export interface TableViewHeaderProps {
+  visibleColumns: Field[];
+  activeSort: SortType;
+  setActiveSort: (sort: SortType) => void;
 }

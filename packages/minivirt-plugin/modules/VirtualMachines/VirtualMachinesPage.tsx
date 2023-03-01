@@ -37,9 +37,9 @@ const fieldsMetadata: Field[] = [
       primary: true,
       toPlaceholderLabel: (t) => t('Status'),
       values: [
-        {id: 'stopped', toLabel: ()=>'stopped'},
-        {id: 'running', toLabel: ()=>'running'},
-        {id: 'fails', toLabel: ()=>'fail'}
+        {id: 'Stopped', toLabel: ()=>'Stopped'},
+        {id: 'Running', toLabel: ()=>'Running'},
+        {id: 'Err', toLabel: ()=>'Error'}
       ],
     },
     sortable: true,

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { RowProps } from '../../TableView';
+import { RowProps } from '../../../components/TableView';
+import { NAME, NAMESPACE } from '../../../utils/constants';
 
 import { Td, Tr } from '@patternfly/react-table';
 import { cleanup, render } from '@testing-library/react';
@@ -31,7 +32,7 @@ test('empty result set returned, no filters ', async () => {
       dataSource={dataSource}
       fieldsMetadata={[
         {
-          id: 'name',
+          id: NAME,
           toLabel: (t) => t('Name'),
         },
       ]}
@@ -58,7 +59,7 @@ test('single entry returned, both filters ', async () => {
       dataSource={dataSource}
       fieldsMetadata={[
         {
-          id: 'name',
+          id: NAME,
           toLabel: (t) => t('Name'),
           isIdentity: true,
           isVisible: true,
@@ -69,7 +70,7 @@ test('single entry returned, both filters ', async () => {
           },
         },
         {
-          id: 'namespace',
+          id: NAMESPACE,
           toLabel: (t) => t('Namespace'),
           isIdentity: true,
           isVisible: true,

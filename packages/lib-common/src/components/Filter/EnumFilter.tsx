@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { useTranslation } from '../../utils/i18n';
 
 import {
   Select,
@@ -11,14 +10,8 @@ import {
 } from '@patternfly/react-core';
 
 import { FilterTypeProps } from './types';
-
-/**
- * Uses native string localCompare method with numeric option enabled.
- *
- * @param locale to be used by string comparator
- */
-export const localeCompare = (a: string, b: string, locale: string): number =>
-  a.localeCompare(b, locale, { numeric: true });
+import { useTranslation } from '../../utils/i18n';
+import { localeCompare } from '../../utils/localCompare';
 
 /**
  * One label may map to multiple enum ids due to translation or by design (i.e. "Unknown")
@@ -142,6 +135,7 @@ export const EnumFilter = ({
 
   return (
     <ToolbarFilter
+      key={filterId}
       chips={selectedUniqueEnumLabels}
       deleteChip={(category, option) => deleteFilter(option)}
       deleteChipGroup={() => onUniqueFilterUpdate([])}

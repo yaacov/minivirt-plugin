@@ -13,12 +13,20 @@
   "types": "./dist/index.d.ts",
   "exports": {
     "./components/*": "./dist/components/*",
+    "./hooks/*": "./dist/hooks/*.js",
+    "./polyfills/*": "./dist/polyfills/*",
     "./utils/*": "./dist/utils/*.js"
   },
   "typesVersions": {
     "*": {
       "components/*": [
         "dist/components/*"
+      ],
+      "hooks/*": [
+        "dist/hooks/*"
+      ],
+      "polyfills/*": [
+        "dist/polyfills/*"
       ],
       "utils/*": [
         "dist/utils/*"

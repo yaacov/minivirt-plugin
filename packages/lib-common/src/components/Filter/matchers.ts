@@ -1,5 +1,7 @@
 import { Field } from '../types';
 
+import { ValueMatcher } from './types';
+
 /**
  * Create matcher for one filter type.
  * Features:
@@ -17,7 +19,7 @@ export const createMatcher =
   }: {
     selectedFilters: { [id: string]: string[] };
     filterType: string;
-    matchValue: (value: string) => (filterValue: string) => boolean;
+    matchValue: (value: unknown) => (filterValue: string) => boolean;
     fields: Field[];
   }) =>
   (entity): boolean =>
@@ -32,11 +34,11 @@ export const createMatcher =
       .every(Boolean);
 
 /**
- * The value is accepted if it contains the filter as substring.
+ * The value is accepted if it contains the trimmed filter as substring.
  */
 export const freetextMatcher = {
   filterType: 'freetext',
-  matchValue: (value: string) => (filter: string) => value?.includes(filter),
+  matchValue: (value: string) => (filter: string) => value?.includes(filter?.trim()),
 };
 
 /**
@@ -44,7 +46,7 @@ export const freetextMatcher = {
  */
 const enumMatcher = {
   filterType: 'enum',
-  matchValue: (value: string) => (filter: string) => value === filter,
+  matchValue: (value: string) => (filter: string) => value.includes(filter),
 };
 
 const groupedEnumMatcher = {
@@ -52,7 +54,11 @@ const groupedEnumMatcher = {
   matchValue: enumMatcher.matchValue,
 };
 
-const defaultValueMatchers = [freetextMatcher, enumMatcher, groupedEnumMatcher];
+export const defaultValueMatchers: ValueMatcher[] = [
+  freetextMatcher,
+  enumMatcher,
+  groupedEnumMatcher,
+];
 
 /**
  * Create matcher for multiple filter types.
@@ -65,10 +71,7 @@ export const createMetaMatcher =
   (
     selectedFilters: { [id: string]: string[] },
     fields: Field[],
-    valueMatchers: {
-      filterType: string;
-      matchValue: (value: string) => (filter: string) => boolean;
-    }[] = defaultValueMatchers,
+    valueMatchers: ValueMatcher[] = defaultValueMatchers,
   ) =>
   (entity): boolean =>
     valueMatchers

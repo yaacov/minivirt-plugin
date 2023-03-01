@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from '../../utils/i18n';
 
 import {
   Select,
@@ -11,6 +10,7 @@ import {
 } from '@patternfly/react-core';
 
 import { MetaFilterProps } from './types';
+import { useTranslation } from '../../utils/i18n';
 
 interface IdOption extends SelectOptionObject {
   id: string;

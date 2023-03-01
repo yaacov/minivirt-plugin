@@ -1,3 +1,5 @@
+import { NAME, NAMESPACE } from '../../../utils/constants';
+
 import { SortByDirection } from '@patternfly/react-table';
 
 import { buildSort, compareWith, universalComparator } from '../sort';
@@ -15,7 +17,7 @@ describe('compareWith comparator factory', () => {
   it('works without custom comparator', () => {
     expect(
       compareWith(
-        { id: 'name', isAsc: true, toLabel: () => 'name' },
+        { id: NAME, isAsc: true, toLabel: () => NAME },
         'en',
         undefined,
       )({ name: 'name_a' }, { name: 'name_b' }),
@@ -24,7 +26,7 @@ describe('compareWith comparator factory', () => {
 
   it('works for nullish entities', () => {
     expect(
-      compareWith({ id: 'name', isAsc: true, toLabel: () => 'name' }, 'en', undefined)(null, undefined),
+      compareWith({ id: NAME, isAsc: true, toLabel: () => NAME }, 'en', undefined)(null, undefined),
     ).toBe(0);
   });
 
@@ -37,7 +39,7 @@ describe('compareWith comparator factory', () => {
   it('reverts sorting order based on sortType.isAsc', () => {
     expect(
       compareWith(
-        { id: 'name', isAsc: false, toLabel: () => 'name' },
+        { id: NAME, isAsc: false, toLabel: () => NAME },
         'en',
         undefined,
       )({ name: 'name_a' }, { name: 'name_b' }),
@@ -47,7 +49,7 @@ describe('compareWith comparator factory', () => {
   it('uses custom field comparator if provided', () => {
     expect(
       compareWith(
-        { id: 'name', isAsc: true, toLabel: () => 'name' },
+        { id: NAME, isAsc: true, toLabel: () => NAME },
         'en',
         (a, b) => a.localeCompare(b), // no numeric
       )({ name: 'a10' }, { name: 'a5' }),
@@ -56,17 +58,17 @@ describe('compareWith comparator factory', () => {
 });
 
 describe('buildSort factory', () => {
-  const NameColumn = { id: 'name', toLabel: () => 'name' };
-  const NamespaceColumn = { id: 'namespace', toLabel: () => 'namespace' };
+  const NameColumn = { id: NAME, toLabel: () => NAME };
+  const NamespaceColumn = { id: NAMESPACE, toLabel: () => NAMESPACE };
   it('sorts ascending', () => {
     const setActiveSort = jest.fn();
     const { sortBy, onSort, columnIndex } = buildSort({
       columnIndex: 0,
       columns: [NameColumn, NamespaceColumn],
       activeSort: {
-        id: 'name',
+        id: NAME,
         isAsc: true,
-        toLabel: () => 'name',
+        toLabel: () => NAME,
       },
       setActiveSort,
     });
@@ -75,7 +77,7 @@ describe('buildSort factory', () => {
     onSort(undefined, 1, SortByDirection.asc, undefined);
     expect(setActiveSort).toBeCalledWith({
       isAsc: true,
-      id: 'namespace',
+      id: NAMESPACE,
       toLabel: NamespaceColumn.toLabel,
     });
   });
@@ -86,9 +88,9 @@ describe('buildSort factory', () => {
       columnIndex: 1,
       columns: [NameColumn, NamespaceColumn],
       activeSort: {
-        id: 'name',
+        id: NAME,
         isAsc: false,
-        toLabel: () => 'name',
+        toLabel: () => NAME,
       },
       setActiveSort,
     });
@@ -97,7 +99,7 @@ describe('buildSort factory', () => {
     onSort(undefined, 1, SortByDirection.desc, undefined);
     expect(setActiveSort).toBeCalledWith({
       isAsc: false,
-      id: 'namespace',
+      id: NAMESPACE,
       toLabel: NamespaceColumn.toLabel,
     });
   });
@@ -123,9 +125,9 @@ describe('buildSort factory', () => {
       columnIndex: 1,
       columns: [NameColumn, NamespaceColumn],
       activeSort: {
-        id: 'name',
+        id: NAME,
         isAsc: false,
-        toLabel: () => 'name',
+        toLabel: () => NAME,
       },
       setActiveSort,
     });
