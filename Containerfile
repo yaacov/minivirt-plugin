@@ -1,5 +1,5 @@
 # Builder container
-FROM registry.access.redhat.com/ubi9/nodejs-16 AS build
+FROM node:16 AS build
 
 # Copy app source
 COPY . /opt/app-root/src
