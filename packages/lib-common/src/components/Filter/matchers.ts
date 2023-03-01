@@ -46,7 +46,7 @@ export const freetextMatcher = {
  */
 const enumMatcher = {
   filterType: 'enum',
-  matchValue: (value: string) => (filter: string) => value.includes(filter),
+  matchValue: (value: string) => (filter: string) => value?.includes(filter),
 };
 
 const groupedEnumMatcher = {
